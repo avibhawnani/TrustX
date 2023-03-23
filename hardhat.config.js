@@ -3,10 +3,8 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
 
 module.exports = {
-  defaultNetwork: "matic",
+  // defaultNetwork: "matic",  
   networks: {
-    hardhat: {
-    },
     polygon_mumbai: {
       url:process.env.ALCHEMY_URL,
       accounts: [process.env.PRIVATE_KEY]
