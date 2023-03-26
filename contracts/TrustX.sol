@@ -88,7 +88,7 @@ contract TrustX {
 // Function-SubmitPaper
     function submitPaper(string memory _title, string memory _category, string memory _contentHash, address[] memory _authors) payable external{
         require(addToAuth[msg.sender].adrs != address(0),"You are not a verified author.");
-        require(msg.value == 2 ether,"Please pay 2 Ether to submit paper.");
+        require(msg.value == 0.001 ether,"Please pay 2 Ether to submit paper.");
         ++paperCount;
         papers[paperCount] = ScientificPaper(paperCount,_title,_category,_authors,_contentHash,0,0,new address[](0),false,false,false,new address[](0));
         addToAuth[msg.sender].isRewarded = false;
@@ -159,11 +159,13 @@ contract TrustX {
         emit Reviewed(msg.sender,_paperID);
     }
 
-    function readPaper(uint _paperID) public returns(ScientificPaper memory){
-        require(addToUser[msg.sender].adrs != address(0),"You are not a verified user");
-        require(papers[_paperID].published,"Error: paper not published yet.");
-        addToUser[msg.sender].paperRead.push(_paperID);
-        papers[_paperID].readers.push(msg.sender);
+    function readPaper(uint _paperID, bool flag) public returns(ScientificPaper memory){
+        if (!flag) {
+            require(addToUser[msg.sender].adrs != address(0),"You are not a verified user");
+            require(papers[_paperID].published,"Error: paper not published yet.");
+            addToUser[msg.sender].paperRead.push(_paperID);
+            papers[_paperID].readers.push(msg.sender);
+        }
         return papers[_paperID];
     }
 
@@ -188,5 +190,20 @@ contract TrustX {
     function getDAOBalance() public view returns(uint){
         return address(this).balance;
     }
-    
+    function getPapers(address _pub, bool _isPublished) public view returns(uint[] memory){
+        uint[] memory p = new uint[](paperCount);
+        uint x=0;
+        if(_isPublished){
+            p = addToPub[_pub].papersPub;
+        }
+        else{
+            for(uint i=1;i<=paperCount;i++){
+                ScientificPaper memory sp = papers[i];
+                if(sp.published == false) {
+                    p[x++] = i;
+                }
+            }
+        }
+        return p;
+    }
 }
