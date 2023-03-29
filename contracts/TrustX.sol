@@ -159,14 +159,16 @@ contract TrustX {
         emit Reviewed(msg.sender,_paperID);
     }
 
-    function readPaper(uint _paperID, bool flag) public returns(ScientificPaper memory){
-        if (!flag) {
-            require(addToUser[msg.sender].adrs != address(0),"You are not a verified user");
-            require(papers[_paperID].published,"Error: paper not published yet.");
-            addToUser[msg.sender].paperRead.push(_paperID);
-            papers[_paperID].readers.push(msg.sender);
-        }
+    function readPaper(uint _paperID) public returns(ScientificPaper memory){
+        require(addToUser[msg.sender].adrs != address(0),"You are not a verified user");
+        require(papers[_paperID].published,"Error: paper not published yet.");
+        addToUser[msg.sender].paperRead.push(_paperID);
+        papers[_paperID].readers.push(msg.sender);
         return papers[_paperID];
+    }
+
+    function readPaper_alternate(uint _paperID) public view returns(ScientificPaper memory, address[] memory){
+        return (papers[_paperID], papers[_paperID].authors);
     }
 
     function isPublished(uint _paperID) public view returns(bool){
@@ -191,6 +193,7 @@ contract TrustX {
         return address(this).balance;
     }
     function getPapers(address _pub, bool _isPublished) public view returns(uint[] memory){
+        require(addToPub[msg.sender].adrs != address(0),"You are not a publisher.");
         uint[] memory p = new uint[](paperCount);
         uint x=0;
         if(_isPublished){
