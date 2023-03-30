@@ -193,13 +193,22 @@ contract TrustX {
         return address(this).balance;
     }
     function getPapers(address _pub, bool _isPublished) public view returns(uint[] memory){
-        require(addToPub[msg.sender].adrs != address(0),"You are not a publisher.");
         uint[] memory p = new uint[](paperCount);
         uint x=0;
         if(_isPublished){
-            p = addToPub[_pub].papersPub;
+            if(addToPub[msg.sender].adrs != _pub) {
+                p = addToPub[_pub].papersPub;
+            } else {
+                for(uint i=1;i<=paperCount;i++){
+                    ScientificPaper memory sp = papers[i];
+                    if(sp.published == true) {
+                        p[x++] = i;
+                    }
+                }
+            }
         }
         else{
+            require(addToPub[msg.sender].adrs != address(0),"You are not a publisher.");
             for(uint i=1;i<=paperCount;i++){
                 ScientificPaper memory sp = papers[i];
                 if(sp.published == false) {
